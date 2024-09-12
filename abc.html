@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ID Card Generator</title>
+    <style>
+      @keyframes colorAnimation {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      #qrCode {
+        margin-top: 20px;
+        display: inline-block;
+      }
+    </style>
+    <!-- Include QRCode.js Library -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <!-- Include html2canvas Library -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  </head>
+  <body>
+    <div id="form-container"></div>
+    <div id="id-card-container"></div>
+    <div id="download-container"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const formContainer = document.getElementById("form-container");
+        const downloadContainer = document.getElementById("download-container");
+
+        const form = document.createElement("form");
+        form.id = "idForm";
+        form.style.margin = "20px auto";
+        form.style.width = "300px";
+        form.style.padding = "20px";
+        form.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.1)";
+        form.style.borderRadius = "12px";
+        form.style.backgroundColor = "#ffffff";
+        form.style.fontFamily = "Arial, sans-serif";
+
+        // Form Fields
+        const fields = [
+          { label: "Name", id: "name", type: "text" },
+          { label: "Designation", id: "designation", type: "text" },
+          { label: "Employee ID", id: "employeeId", type: "text" },
+          { label: "Phone Number", id: "phone", type: "text" },
+          { label: "Email", id: "email", type: "email" },
+          { label: "Address", id: "address", type: "textarea" },
+          { label: "Upload Image", id: "imageInput", type: "file" },
+        ];
+
+        fields.forEach((field) => {
+          const label = document.createElement("label");
+          label.textContent = `${field.label}: `;
+          label.style.display = "block";
+          label.style.marginBottom = "5px";
+          label.style.fontWeight = "bold";
+          const input = document.createElement(
+            field.type === "textarea" ? "textarea" : "input"
+          );
+          input.type = field.type;
+          input.id = field.id;
+          input.style.width = "98%";
+          input.style.padding = "8px";
+          input.style.marginBottom = "10px";
+          input.style.borderRadius = "6px";
+          input.style.border = "1px solid #ccc";
+          if (field.type === "textarea") input.rows = "3";
+          if (field.id === "imageInput") input.style.marginBottom = "20px";
+          form.appendChild(label);
+          form.appendChild(input);
+        });
+
+        // Submit Button
+        const submitButton = document.createElement("button");
+        submitButton.textContent = "Generate ID Card";
+        submitButton.type = "submit";
+        submitButton.style.width = "100%";
+        submitButton.style.padding = "10px";
+        submitButton.style.backgroundColor = "#ff5722";
+        submitButton.style.color = "#fff";
+        submitButton.style.border = "none";
+        submitButton.style.borderRadius = "6px";
+        submitButton.style.cursor = "pointer";
+        submitButton.style.fontWeight = "bold";
+        form.appendChild(submitButton);
+
+        formContainer.appendChild(form);
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+          const imageFile = document.getElementById("imageInput").files[0];
+          const reader = new FileReader();
+
+          reader.onload = function (event) {
+            const imageUrl = event.target.result;
+            generateIdCard(
+              document.getElementById("name").value,
+              document.getElementById("designation").value,
+              document.getElementById("employeeId").value,
+              document.getElementById("phone").value,
+              document.getElementById("email").value,
+              document.getElementById("address").value,
+              imageUrl
+            );
+          };
+
+          if (imageFile) {
+            reader.readAsDataURL(imageFile);
+          } else {
+            generateIdCard(
+              document.getElementById("name").value,
+              document.getElementById("designation").value,
+              document.getElementById("employeeId").value,
+              document.getElementById("phone").value,
+              document.getElementById("email").value,
+              document.getElementById("address").value,
+              null
+            );
+          }
+        });
+
+        function generateIdCard(
+          name,
+          designation,
+          employeeId,
+          phone,
+          email,
+          address,
+          imageUrl
+        ) {
+          const idCardContainer = document.getElementById("id-card-container");
+
+          idCardContainer.innerHTML = "";
+
+          const idCard = document.createElement("div");
+          idCard.id = "idCard";
+
+          const idImage = document.createElement("img");
+          idImage.style.width = "100px";
+          idImage.style.height = "100px";
+          idImage.style.borderRadius = "50%";
+          idImage.style.marginBottom = "15px";
+
+          if (imageUrl) {
+            idImage.src = imageUrl;
+          } else {
+            idImage.src = "https://via.placeholder.com/100";
+          }
+
+          const idName = document.createElement("h2");
+          idName.textContent = name;
+          idName.style.marginBottom = "10px";
+          idName.style.color = "#ffffff";
+          idName.style.fontSize = "24px";
+          idName.style.fontWeight = "bold";
+
+          const idDesignation = document.createElement("p");
+          idDesignation.textContent = designation;
+          idDesignation.style.marginBottom = "10px";
+          idDesignation.style.color = "#ffffff";
+          idDesignation.style.fontSize = "18px";
+
+          const idEmployeeId = document.createElement("p");
+          idEmployeeId.textContent = `Employee ID: ${employeeId}`;
+          idEmployeeId.style.marginBottom = "10px";
+          idEmployeeId.style.color = "#ffffff";
+          idEmployeeId.style.fontSize = "16px";
+
+          const idPhone = document.createElement("p");
+          idPhone.textContent = `Phone: ${phone}`;
+          idPhone.style.marginBottom = "10px";
+          idPhone.style.color = "#ffffff";
+          idPhone.style.fontSize = "16px";
+
+          const idEmail = document.createElement("p");
+          idEmail.textContent = `Email: ${email}`;
+          idEmail.style.marginBottom = "10px";
+          idEmail.style.color = "#ffffff";
+          idEmail.style.fontSize = "16px";
+
+          const idAddress = document.createElement("p");
+          idAddress.textContent = `Address: ${address}`;
+          idAddress.style.marginBottom = "20px";
+          idAddress.style.color = "#ffffff";
+          idAddress.style.fontSize = "16px";
+
+          const qrCodeContainer = document.createElement("div");
+          qrCodeContainer.id = "qrCode";
+          qrCodeContainer.style.marginTop = "20px";
+
+          // Generate QR Code
+          const qrCode = new QRCode(qrCodeContainer, {
+            text: `Name: ${name}\nDesignation: ${designation}\nEmployee ID: ${employeeId}\nPhone: ${phone}\nEmail: ${email}\nAddress: ${address}`,
+            width: 64,
+            height: 64,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H,
+          });
+
+          idCard.appendChild(idImage);
+          idCard.appendChild(idName);
+          idCard.appendChild(idDesignation);
+          idCard.appendChild(idEmployeeId);
+          idCard.appendChild(idPhone);
+          idCard.appendChild(idEmail);
+          idCard.appendChild(idAddress);
+          idCard.appendChild(qrCodeContainer);
+
+          idCardContainer.appendChild(idCard);
+
+          idCard.style.background =
+            "linear-gradient(135deg, #ff5722, #ffc107, #03a9f4)";
+          idCard.style.borderRadius = "12px";
+          idCard.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.2)";
+          idCard.style.padding = "20px";
+          idCard.style.width = "300px";
+          idCard.style.textAlign = "center";
+          idCard.style.fontFamily = "Arial, sans-serif";
+          idCard.style.margin = "20px auto";
+
+          idCard.style.backgroundSize = "400% 400%";
+          idCard.style.animation = "colorAnimation 5s ease infinite";
+
+          //Download Button
+          const downloadButton = document.createElement("button");
+          downloadButton.textContent = "Download ID Card";
+          downloadButton.style.display = "block";
+          downloadButton.style.margin = "20px auto";
+          downloadButton.style.padding = "10px 20px";
+          downloadButton.style.backgroundColor = "#4CAF50";
+          downloadButton.style.color = "#fff";
+          downloadButton.style.border = "none";
+          downloadButton.style.borderRadius = "6px";
+          downloadButton.style.cursor = "pointer";
+          downloadButton.style.fontWeight = "bold";
+
+          downloadButton.addEventListener("click", function () {
+            downloadIdCard(idCard);
+          });
+
+          downloadContainer.innerHTML = ""; // Clear previous download button
+          downloadContainer.appendChild(downloadButton);
+        }
+
+        function downloadIdCard(idCardElement) {
+          html2canvas(idCardElement).then((canvas) => {
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "id_card.png";
+            link.click();
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
